@@ -31,8 +31,6 @@ interface FinalContact {
   name?: string;
   title?: string;
   email?: string;
-  score: number;
-  reasons: string[];
 }
 
 interface PlatformSocials {
@@ -574,7 +572,7 @@ function computeFinalScore(c: ContactCandidate, domain: string, recurrence: numb
   return { score, reasons };
 }
 
-async function crawlAndEnrich(inputUrl: string): Promise<{ domain: string; contact: FinalContact | null; socials: PlatformSocials; endpointsSearched: number }> {
+async function crawlAndEnrich(inputUrl: string): Promise<{ domain: string; contact: FinalContact | null; socials: PlatformSocials; endpointsSearched: number; createdDate: string }> {
   const { baseUrl, domain } = normalizeDomain(inputUrl);
   progress(`start domain=${domain}`);
 
@@ -779,38 +777,36 @@ async function crawlAndEnrich(inputUrl: string): Promise<{ domain: string; conta
     return mxCache.get(d)!;
   }
 
-  const finalsMeta: Array<{ contact: FinalContact; candidate: ContactCandidate; recurrence: number }> = [];
+  const finalsMeta: Array<{ contact: FinalContact; candidate: ContactCandidate; recurrence: number; score: number }> = [];
   for (const c of merged.values()) {
     if (!c.email && !c.name) continue;
     const recurrence = new Set(c.evidence.map((e) => `${e.sourceTier}:${e.url}`)).size;
-    const { score, reasons } = computeFinalScore(c, domain, recurrence, false);
+    const { score } = computeFinalScore(c, domain, recurrence, false);
     finalsMeta.push({
       candidate: c,
       recurrence,
+      score,
       contact: {
         name: c.name,
         title: c.title,
-        email: c.email,
-        score,
-        reasons
+        email: c.email
       }
     });
   }
 
-  finalsMeta.sort((a, b) => b.contact.score - a.contact.score);
+  finalsMeta.sort((a, b) => b.score - a.score);
 
   // MX check only for top candidate to keep runtime low.
   const top = finalsMeta[0];
   if (top?.candidate.email) {
     const hasMx = await hasMxForEmail(top.candidate.email);
     if (hasMx) {
-      const { score, reasons } = computeFinalScore(top.candidate, domain, top.recurrence, true);
-      top.contact.score = score;
-      top.contact.reasons = reasons;
+      const { score } = computeFinalScore(top.candidate, domain, top.recurrence, true);
+      top.score = score;
     }
   }
 
-  finalsMeta.sort((a, b) => b.contact.score - a.contact.score);
+  finalsMeta.sort((a, b) => b.score - a.score);
   const bestContact = finalsMeta[0]?.contact ?? null;
   progress(`scoring complete candidates=${finalsMeta.length} best=${bestContact?.email ?? bestContact?.name ?? 'none'}`);
   const bestCandidateSocials = finalsMeta[0] ? [...finalsMeta[0].candidate.socials] : [];
@@ -823,7 +819,8 @@ async function crawlAndEnrich(inputUrl: string): Promise<{ domain: string; conta
     domain,
     contact: bestContact,
     socials,
-    endpointsSearched: visited.size
+    endpointsSearched: visited.size,
+    createdDate: new Date().toISOString()
   };
 }
 

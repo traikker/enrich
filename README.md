@@ -38,9 +38,7 @@ The command prints JSON like:
   "contact": {
     "name": "...",
     "title": "...",
-    "email": "...",
-    "score": 0.91,
-    "reasons": ["..."]
+    "email": "..."
   },
   "socials": {
     "facebook": "...",
@@ -49,7 +47,8 @@ The command prints JSON like:
     "x": "...",
     "tiktok": "..."
   },
-  "endpointsSearched": 18
+  "endpointsSearched": 18,
+  "createdDate": "2026-04-14T16:07:22.123Z"
 }
 ```
 
@@ -57,6 +56,7 @@ Notes:
 - `contact` may be `null` if nothing reliable is found.
 - `socials` are returned at the top level (not under `contact`).
 - `endpointsSearched` is a count only.
+- `createdDate` is the completion timestamp in RFC3339 format.
 
 ## Scripts
 

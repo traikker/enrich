@@ -26,9 +26,7 @@ bun run src/enrich.ts https://example.com
   "contact": {
     "name": "Jane Doe",
     "title": "CEO",
-    "email": "jane@example.com",
-    "score": 0.91,
-    "reasons": ["source:jsonld=0.92", "mx:+0.05"]
+    "email": "jane@example.com"
   },
   "socials": {
     "facebook": "https://facebook.com/...",
@@ -51,6 +49,6 @@ bun run src/enrich.ts https://example.com
 ## Agent usage guidance
 
 - Treat this as a best-effort enrichment tool, not guaranteed truth.
-- Prefer `contact.email` when `score` is high.
+- Prefer `contact.email` when present.
 - If `contact` is null, still use top-level `socials` and `domain`.
 - Parse stdout as JSON; ignore stderr progress lines.
