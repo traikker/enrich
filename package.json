@@ -1,0 +1,20 @@
+{
+  "name": "enrich",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.2.11",
+  "scripts": {
+    "start": "bun run src/enrich.ts",
+    "build": "bunx tsc -p tsconfig.json",
+    "check": "bunx tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "fast-xml-parser": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3"
+  }
+}
